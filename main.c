@@ -58,18 +58,7 @@
     *DATA_INITIALIZED    
         - int pthread_create(pthread_t *restrict thread, const pthread_attr_t, void*(*start_routine)(void *), void *restrict arg)
 */
-void    *routine_philos(void *arg)
-{
-    t_philo *philos = (t_philo *)arg;
 
-    
-}
-
-
-void    *data_init(pthread_t *restrict thread, const pthread_attr_t, void*(*start_routine)(void *), void *restrict arg)
-{
-
-}
 int main(int ac, char *av[])
 {
     if(ac == 5 || ac == 6)
@@ -81,7 +70,7 @@ int main(int ac, char *av[])
 
         //2. Data_initialized 
 
-            /* LOOP for join all threads */ TODO
+        data_init(&table);
 
         //3. Visualized
         //4. Clean (Memory_leaks)
@@ -89,8 +78,7 @@ int main(int ac, char *av[])
     }
     else
     {
-        ft_putendl_fd("Wrong arguments: <number_of_philosophers> <time_to_die> <time_to_eat> <time_to_sleep> <[number_of_times_each_philosophers_must_eat]>", 2);
-        exit(1);
+        exit_function("Wrong arguments: <number_of_philosophers> <time_to_die> <time_to_eat> <time_to_sleep> <[number_of_times_each_philosophers_must_eat]>");
     }
 
 

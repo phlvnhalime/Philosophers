@@ -12,18 +12,9 @@
 
 #include "philo.h"
 
-void    ft_putendl_fd(char *s, int fd)
+void    exit_function(const char *str)
 {
-    int i;
-
-    if(!s)
-        return ;
-        
-    i = 0;
-    while(s[i] != '\0')
-    {
-        write(fd, &s[i], 1);
-        i++;
-    }
-    write(fd, "\n", 1);
+    printf(RD"%s\n"RST, str);
+    exit(EXIT_FAILURE);
 }
+
