@@ -32,6 +32,7 @@
 #define C       "\033[0;36m"
 #define RST     "\033[0m"
 
+
 typedef struct s_philo
 {
     int         philo_id;
@@ -40,12 +41,13 @@ typedef struct s_philo
     t_fork      left_fork;
     t_fork      right_fork;
     pthread_t   thread_id;
+    t_table     *table;
 
 }   t_philo;
 
 typedef struct s_fork
 {
-    pthread_mutex_t fork;
+    pthread_mutex_t *fork;
     int             fork_id;
 }   t_fork;
 
@@ -55,11 +57,11 @@ typedef struct s_table
     long    time_to_sleep;
     long    time_to_eat;
     long    time_to_die;
-    long    number_of_times_each_philos_must_eat;
+    long    philos_must_eat;
     bool    end_of_simulation;
     t_fork  *forks;
     t_philo *philos;
-}   t_table;
+} t_table;
 
 // - Utils:
 void    exit_function(const char *str);
@@ -67,7 +69,7 @@ void    exit_function(const char *str);
 void    parse_input(t_table *table, char *av[]);
 
 // - Memory allocated loop:
-void    memory_loop(size_t size);
+void    *memory_loop(size_t size);
 
 
 #endif

@@ -2,7 +2,8 @@
 
 static void philo_status(t_philo *philo, const char *str)
 {
-    pthread_mutex_lock(&),// Check the links for this connection! /TODO
+    pthread_mutex_lock(&philo);
+    // Check the links for this connection! /TODO
 }
 
 
@@ -25,10 +26,10 @@ void    data_init(t_table *table)
 {
     table->end_of_simulation = false;
     table->philos = memory_loop(sizeof(t_philo) * table->nbr_of_philos); // I'm gonna get an error for this part!
-    table->forks = memory_loop(sizof(t_fork) * table->nbr_of_philos);
+    table->forks = memory_loop(sizeof(t_fork) * table->nbr_of_philos);
 
     /*
-        Start forks wit mutex
+        Start forks with mutex
     */
     int i = 0;
     while(i < table->nbr_of_philos)
