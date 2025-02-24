@@ -1,23 +1,67 @@
 #include "philo.h"
 
-static void philo_status(t_philo *philo, const char *str)
+long    get_time(void) // this function is like that
 {
-    pthread_mutex_lock(&philo);
-    // Check the links for this connection! /TODO
+    struct timeval tv;// keep time as seconds and microseconds.
+    gettimeofday(&tv, NULL); // current time saved to tv
+    return (tv.tv_sec * 1000 + tv.tv_usec / 1000); // 1 second = 1000 millisaniye
+    // 1 micro second = 0.000001 second 1e6
+}
+
+static void philo_status(t_philo *philo, const char *status) // Control it Think, sleep and eat 
+{
+    pthread_mutex_lock(&philo->table->log_mutex);
+    if(!philo->table->end_of_simulation || ! ft_strcmp(status, "died")) // TODO strcmp
+        printf("%ld %d %s \n",get_time()- philo->table->start_time, philo->philo_id, status)
+    // Check the links for this connection! 
+    // Add log_mutex! or create a function for mutex?
+    //First i will start to add log_mutex
+    pthread_mutex_unlock(&philo->table->log_mutex);
 }
 
 
 void    *philosophers_routine(void *arg)
 {
     t_philo *philo = (t_philo *)arg;
-    t_table *table = philo->thread_id;
+    // t_table *table = philo->thread_id;
 
-    int left_fork = philo->philo_id - 1;
-    int right_fork = philo->philo_id % table->nbr_of_philos;
+    // int left_fork = philo->philo_id - 1;
+    // int right_fork = philo->philo_id % table->nbr_of_philos;
 
-    while(1)
+
+    while(!philo->table->end_of_simulation)
     {
-        //philo_status(t_philo *philo, const char *str); TODO
+        //philo_status(t_philo *philo, const char *status); TODO
+        philo_status(philo, "is thinking");
+        if (philo->philo_id % 2 == 0) // first philosophers start to eating with left fork
+        {
+            pthread_mutex_lock(&philo->right_fork->fork);
+            philo_status(philo, "has taken a fork");
+            pthread_mutex_lock(&philo->left_fork->fork);
+            philo_status(philo, "has taken a fork");
+        }
+        else
+        {
+            pthread_mutex_lock(&philo->left_fork->fork);
+            philo_status(philo, "has taken a fork");
+            pthread_mutex_lock(&philo->right_fork->fork);
+            philo_status(philo, "has taken a fork");
+        }
+        // add the last meal with given time!
+        philo->last_meal = get_time();
+        philo_status(philo, "is eating");
+        // give the usleep here! for time to eating!
+        philo->meal_counter++;
+        //close the mutex!
+        pthread_mutex_unlock(&philo->left_fork->fork);
+        pthread_mutex_unlock(&philo->right_fork->fork);
+        if(philo->table->philos_must_eat != -1 && philo->meal_counter >= philo->table->philos_must_eat)
+            philo->fill_full = true;
+        philo_status(philo, "is sleeping");
+        // add usleep for time to sleep!
+
+
+        
     }
 
 }
@@ -34,7 +78,7 @@ void    data_init(t_table *table)
     int i = 0;
     while(i < table->nbr_of_philos)
     {
-        pthread_mutex_init(table->forks[i].fork, NULL);
+        pthread_mutex_init(&table->forks[i].fork, NULL);
         table->forks[i].fork_id = i;
         i++;
     }
@@ -55,5 +99,7 @@ void    data_init(t_table *table)
         */
        table->philos[i].left_fork = table->forks[i];
        table-> philos[i].right_fork = table->forks[(i + 1) % table->nbr_of_philos];
+       table->philos[i].table = table;
+       i++; 
     }
 }

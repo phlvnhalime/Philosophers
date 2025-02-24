@@ -59,8 +59,24 @@
         - int pthread_create(pthread_t *restrict thread, const pthread_attr_t, void*(*start_routine)(void *), void *restrict arg)
 */
 
+void    clean(t_table *table)// destroy it all mutex
+{
+    int i = 0;
+    while(i < table->nbr_of_philos)
+    {
+        pthread_mutex_destroy(&table->forks[i].fork);
+        i++;
+    }
+    pthread_mutex_destroy(&table->log_mutex);
+    free(table->forks);
+    free(table->philos);
+}
+
 int main(int ac, char *av[])
 {
+    /*
+        If the av is not 5 or 6  output should be wrong!
+    */
     if(ac == 5 || ac == 6)
     {
         t_table table;
@@ -71,10 +87,15 @@ int main(int ac, char *av[])
         //2. Data_initialized 
 
         data_init(&table);
+        // add the start time!
+        // 3. start time table.start_time = get_time()
+        table.start_time = get_time();
 
-        //3. Visualized
-        //4. Clean (Memory_leaks)
-
+        // if the philosopher 1 person? what will happen? //TODO
+        //4. controller
+        end_of_died(&table);
+        //5. Clean (Memory_leaks)
+        clean(&table);
     }
     else
     {

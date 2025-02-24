@@ -20,6 +20,7 @@
 #include <stdbool.h>
 #include <limits.h>
 #include <time.h>
+#include <sys/time.h>
 
 /*
     The colour codes are used to make the output more readable.
@@ -38,10 +39,11 @@ typedef struct s_philo
     int         philo_id;
     int         meal_counter;
     bool        fill_full;
+    long        last_meal;
     t_fork      left_fork;
     t_fork      right_fork;
     pthread_t   thread_id;
-    t_table     *table;
+    struct s_table     *table;
 
 }   t_philo;
 
@@ -58,7 +60,9 @@ typedef struct s_table
     long    time_to_eat;
     long    time_to_die;
     long    philos_must_eat;
+    long    start_time;
     bool    end_of_simulation;
+    pthread_mutex_t log_mutex;
     t_fork  *forks;
     t_philo *philos;
 } t_table;
@@ -70,6 +74,14 @@ void    parse_input(t_table *table, char *av[]);
 
 // - Memory allocated loop:
 void    *memory_loop(size_t size);
+
+// time
+long    get_time(void);
+
+// end of the simulation.
+void    end_of_died(t_table *table);
+
+//clean it!
 
 
 #endif
