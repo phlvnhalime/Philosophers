@@ -33,6 +33,13 @@
 #define C       "\033[0;36m"
 #define RST     "\033[0m"
 
+typedef struct s_table t_table;
+
+typedef struct s_fork
+{
+    pthread_mutex_t fork;
+    int             fork_id;
+}   t_fork;
 
 typedef struct s_philo
 {
@@ -43,17 +50,12 @@ typedef struct s_philo
     t_fork      left_fork;
     t_fork      right_fork;
     pthread_t   thread_id;
-    struct s_table     *table;
+    t_table     *table;
 
 }   t_philo;
 
-typedef struct s_fork
-{
-    pthread_mutex_t *fork;
-    int             fork_id;
-}   t_fork;
 
-typedef struct s_table
+struct s_table
 {
     long    nbr_of_philos;
     long    time_to_sleep;
@@ -65,10 +67,11 @@ typedef struct s_table
     pthread_mutex_t log_mutex;
     t_fork  *forks;
     t_philo *philos;
-} t_table;
+} ;
 
 // - Utils:
 void    exit_function(const char *str);
+int ft_strcmp(const char *s1, const char *s2);
 // - Parse of arguments:
 void    parse_input(t_table *table, char *av[]);
 
@@ -81,7 +84,11 @@ long    get_time(void);
 // end of the simulation.
 void    end_of_died(t_table *table);
 
+//initialized
+void philo_status(t_philo *philo, const char *status);
+void    *philosophers_routine(void *arg);
+void    data_init(t_table *table);
 //clean it!
-
+void    clean(t_table *table);
 
 #endif

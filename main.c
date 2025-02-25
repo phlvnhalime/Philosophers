@@ -87,13 +87,28 @@ int main(int ac, char *av[])
         //2. Data_initialized 
 
         data_init(&table);
-        // add the start time!
-        // 3. start time table.start_time = get_time()
         table.start_time = get_time();
 
+        
+        int i = 0;
+        while(i < table.nbr_of_philos)
+        {
+            table.philos[i].last_meal = table.start_time;
+            pthread_create(&table.philos[i].thread_id, NULL, philosophers_routine, &table.philos[i]);
+            i++;
+        }
+        // printf("ass\n");
+        // add the start time!
+        // 3. start time table.start_time = get_time()
+        // I have to add no philosophers rules // TODO
+        
         // if the philosopher 1 person? what will happen? //TODO
         //4. controller
         end_of_died(&table);
+        // printf("hey\n");
+        i = 0;
+        while(i < table.nbr_of_philos)
+            pthread_join(table.philos[i].thread_id, NULL), i++;
         //5. Clean (Memory_leaks)
         clean(&table);
     }
@@ -101,8 +116,5 @@ int main(int ac, char *av[])
     {
         exit_function("Wrong arguments: <number_of_philosophers> <time_to_die> <time_to_eat> <time_to_sleep> <[number_of_times_each_philosophers_must_eat]>");
     }
-
-
-
     return 0;
 }
