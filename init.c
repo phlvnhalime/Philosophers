@@ -23,7 +23,7 @@ long    get_time(void) // this function is like that
 void philo_status(t_philo *philo, const char *status) // Control it Think, sleep and eat 
 {
     pthread_mutex_lock(&philo->table->log_mutex);
-    if(!philo->table->end_of_simulation || ! ft_strcmp(status, "died")) // TODO strcmp
+    if(!philo->table->end_of_simulation || ! ft_strcmp(status, "died")) // Check it
         printf("%ld %d %s \n",get_time()- philo->table->start_time, philo->philo_id, status);
     // Check the links for this connection! 
     // Add log_mutex! or create a function for mutex?
@@ -36,11 +36,8 @@ void    *philosophers_routine(void *arg)
 {
     t_philo *philo = (t_philo *)arg;
     // t_table *table = philo->thread_id;
-
     // int left_fork = philo->philo_id - 1;
     // int right_fork = philo->philo_id % table->nbr_of_philos;
-
-
     while(!philo->table->end_of_simulation)
     {
         //philo_status(t_philo *philo, const char *status); TODO
@@ -66,8 +63,17 @@ void    *philosophers_routine(void *arg)
         usleep(philo->table->time_to_eat * 1000);
         philo->meal_counter++;
         //close the mutex!
-        pthread_mutex_unlock(&philo->left_fork.fork);
-        pthread_mutex_unlock(&philo->right_fork.fork);
+        if(philo->philo_id % 2 == 0)
+        {
+            pthread_mutex_unlock(&philo->left_fork.fork);
+            pthread_mutex_unlock(&philo->right_fork.fork);
+        }
+        else
+        {
+            pthread_mutex_unlock(&philo->right_fork.fork);
+            pthread_mutex_unlock(&philo->left_fork.fork);
+        }
+        
         if(philo->table->philos_must_eat != -1 && philo->meal_counter >= philo->table->philos_must_eat)
             philo->fill_full = true;
         philo_status(philo, "is sleeping");

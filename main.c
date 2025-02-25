@@ -89,7 +89,8 @@ int main(int ac, char *av[])
         data_init(&table);
         table.start_time = get_time();
 
-        
+        if(table.nbr_of_philos == 0)
+            exit_function("There is not any philosophers");
         int i = 0;
         while(i < table.nbr_of_philos)
         {
@@ -97,7 +98,6 @@ int main(int ac, char *av[])
             pthread_create(&table.philos[i].thread_id, NULL, philosophers_routine, &table.philos[i]);
             i++;
         }
-        // printf("ass\n");
         // add the start time!
         // 3. start time table.start_time = get_time()
         // I have to add no philosophers rules // TODO

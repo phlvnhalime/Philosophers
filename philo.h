@@ -46,7 +46,7 @@ typedef struct s_philo
     int         philo_id;
     int         meal_counter;
     bool        fill_full;
-    long        last_meal;
+    int        last_meal;
     t_fork      left_fork;
     t_fork      right_fork;
     pthread_t   thread_id;
