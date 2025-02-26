@@ -12,6 +12,14 @@
 
 #include "philo.h"
 
+/*
+    Current Problem:
+    1. The simulation should stop when a philosopher dies.
+    2. Deadlock and syncranization problems.
+    3. Missing died message.
+    4. The time is not correct.
+*/
+
 void    clean(t_table *table)// destroy it all mutex
 {
     int i = 0;
@@ -64,7 +72,7 @@ int main(int ac, char *av[])
             i++;
         }
         
-          end_of_died(&table);
+        end_of_died(&table);
         // printf("hey\n");
         i = 0;
         while(i < table.nbr_of_philos)

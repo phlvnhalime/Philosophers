@@ -46,13 +46,21 @@ void    *philosophers_routine(void *arg)
         philo_status(philo, "has taken a fork");
         usleep(philo->table->time_to_die * 1000);
         philo_status(philo, "died");
-        return 0;
+        return NULL;
     }
 
-    while(!philo->table->end_of_simulation)
+    while(1)
     {
         //philo_status(t_philo *philo, const char *status);
-    
+        pthread_mutex_lock(&philo->table->state_mutex);
+        if(philo->table->end_of_simulation)
+        {
+            pthread_mutex_unlock(&philo->table->state_mutex);
+            break;
+        }
+        pthread_mutex_unlock(&philo->table->state_mutex);
+
+        philo_status(philo, "is thinking");
         if (philo->philo_id % 2 == 0) // first philosophers start to eating with left fork
         {
             pthread_mutex_lock(&philo->right_fork->fork);
@@ -67,20 +75,41 @@ void    *philosophers_routine(void *arg)
             pthread_mutex_lock(&philo->right_fork->fork);
             philo_status(philo, "has taken a fork");
         }
+        pthread_mutex_lock(&philo->table->state_mutex);
+        if( philo->table->end_of_simulation)
+        {
+            pthread_mutex_unlock(&philo->right_fork->fork);
+            pthread_mutex_unlock(&philo->left_fork->fork);
+            pthread_mutex_unlock(&philo->table->state_mutex);
+            break;
+        }
         // add the last meal with given time!
         philo->last_meal = get_time();
+        pthread_mutex_unlock(&philo->table->state_mutex);
+
         philo_status(philo, "is eating");
         usleep(philo->table->time_to_eat * 1000);
+
+        pthread_mutex_lock(&philo->table->state_mutex);
         philo->meal_counter++;
+        if(philo->table->philos_must_eat != -1 && philo->meal_counter >= philo->table->philos_must_eat)
+            philo->fill_full = true;
+        pthread_mutex_unlock(&philo->table->state_mutex);
+
         pthread_mutex_unlock(&philo->right_fork->fork);
         pthread_mutex_unlock(&philo->left_fork->fork);
         
-        if(philo->table->philos_must_eat != -1 && philo->meal_counter >= philo->table->philos_must_eat)
-            philo->fill_full = true;
-
         philo_status(philo, "is sleeping");
         usleep(philo->table->time_to_sleep * 1000);
-        philo_status(philo, "is thinking");
+        
+        pthread_mutex_lock(&philo->table->state_mutex);
+        if(philo->table->end_of_simulation)
+        {
+            pthread_mutex_unlock(&philo->table->state_mutex);
+            break;
+        }
+        pthread_mutex_unlock(&philo->table->state_mutex);
+        
         // usleep(1000);
     }
     return NULL;
@@ -111,4 +140,5 @@ void    data_init(t_table *table)
        table->philos[i].table = table;
        i++; 
     }
+    pthread_mutex_init(&table->state_mutex, NULL);
 }
