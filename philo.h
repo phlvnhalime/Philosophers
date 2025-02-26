@@ -46,11 +46,11 @@ typedef struct s_philo
     int         philo_id;
     int         meal_counter;
     bool        fill_full;
-    int        last_meal;
-    t_fork      left_fork;
-    t_fork      right_fork;
+    long        last_meal;
+    t_fork      *left_fork;//Changed as a pointer
+    t_fork      *right_fork;
     pthread_t   thread_id;
-    t_table     *table;
+    struct s_table     *table;
 
 }   t_philo;
 
@@ -65,6 +65,7 @@ struct s_table
     long    start_time;
     bool    end_of_simulation;
     pthread_mutex_t log_mutex;
+    pthread_mutex_t detach_mutex;
     t_fork  *forks;
     t_philo *philos;
 } ;
