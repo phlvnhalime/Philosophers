@@ -23,7 +23,7 @@ long    get_time(void) // this function is like that
 void philo_status(t_philo *philo, const char *status) // Control it Think, sleep and eat 
 {
     pthread_mutex_lock(&philo->table->log_mutex);
-    if(!philo->table->end_of_simulation || !ft_strcmp(status, "died"))
+    if(!philo->table->end_of_simulation || !strcmp(status, "died"))// check strcmp command
         printf("%ld %d %s \n",get_time() - philo->table->start_time, philo->philo_id, status);
     // Check the links for this connection! 
     // Add log_mutex! or create a function for mutex?

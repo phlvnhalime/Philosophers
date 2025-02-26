@@ -21,6 +21,7 @@ void    clean(t_table *table)// destroy it all mutex
         i++;
     }
     pthread_mutex_destroy(&table->log_mutex);
+    pthread_mutex_destroy(&table->state_mutex);
     free(table->forks);
     free(table->philos);
 }
@@ -48,9 +49,9 @@ int main(int ac, char *av[])
         if(table.nbr_of_philos == 1)
         {
             pthread_create(&table.philos[0].thread_id , NULL, philosophers_routine, &table.philos[0]);
-            pthread_detach(table.philos[0].thread_id);
-            usleep(table.time_to_die * 1000);
-            printf("%ld is died\n", table.time_to_die);
+            pthread_join(table.philos[0].thread_id, NULL);
+            // usleep(table.time_to_die * 1000);
+            // printf("%ld is died\n", table.time_to_die);
             clean(&table);
             return 0;
             // Check the clean function!

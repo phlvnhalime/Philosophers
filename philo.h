@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <string.h> // For testing strcmp
 #include <stdbool.h>
 #include <limits.h>
 #include <time.h>
@@ -65,7 +66,7 @@ struct s_table
     long    start_time;
     bool    end_of_simulation;
     pthread_mutex_t log_mutex;
-    pthread_mutex_t detach_mutex;
+    pthread_mutex_t state_mutex;
     t_fork  *forks;
     t_philo *philos;
 } ;

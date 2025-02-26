@@ -15,14 +15,23 @@
 void    end_of_died(t_table *table)//Masada herkesi öldür! :D
 {
     int i;
-    while(!table->end_of_simulation)
+    while(1)
     {
+        pthread_mutex_lock(&table->state_mutex);
+        if(table->end_of_simulation)
+        {
+            pthread_mutex_unlock(&table->state_mutex);
+            break;
+        }
+        pthread_mutex_unlock(&table->state_mutex);
         i = 0;
         while(i < table->nbr_of_philos)
         {
+            pthread_mutex_lock(&table->state_mutex);
             if(get_time() - table->philos[i].last_meal > table->time_to_die)
             {
                 table->end_of_simulation = true;
+                pthread_mutex_unlock(&table->state_mutex);
                 philo_status(&table->philos[i], "died");
                 return ; // or break. test it.
             }
@@ -30,15 +39,18 @@ void    end_of_died(t_table *table)//Masada herkesi öldür! :D
             {
                 table->philos[i].fill_full = true;
             }
+            pthread_mutex_unlock(&table->state_mutex);
             i++;
         }
         if (table->philos_must_eat != -1)
         {
             i = 0;
-            while(i < table->philos_must_eat && table->philos[i].fill_full)
+            pthread_mutex_lock(&table->state_mutex);
+            while(i < table->nbr_of_philos && table->philos[i].fill_full)
                 i++;
             if(i == table->nbr_of_philos)
                 table->end_of_simulation = true;
+            pthread_mutex_unlock(&table->state_mutex);
         }
         usleep(1000);
     }
