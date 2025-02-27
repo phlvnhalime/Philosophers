@@ -76,7 +76,10 @@ int main(int ac, char *av[])
         // printf("hey\n");
         i = 0;
         while(i < table.nbr_of_philos)
-            pthread_join(table.philos[i].thread_id, NULL), i++;
+        {
+            pthread_join(table.philos[i].thread_id, NULL);
+            i++;
+        }
         clean(&table);
     }
     else

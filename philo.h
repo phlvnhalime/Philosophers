@@ -21,6 +21,8 @@
 #include <stdbool.h>
 #include <limits.h>
 #include <time.h>
+#include <sys/cdefs.h>
+#include <sys/_types.h>
 #include <sys/time.h>
 
 /*
@@ -92,5 +94,6 @@ void    *philosophers_routine(void *arg);
 void    data_init(t_table *table);
 //clean it!
 void    clean(t_table *table);
+void check_sleep(long durasion_ms);
 
 #endif

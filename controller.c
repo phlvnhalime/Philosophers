@@ -15,42 +15,29 @@
 void    end_of_died(t_table *table)//Masada herkesi öldür! :D
 {
     int i;
+    long current_time;
     while(1)
     {
-        pthread_mutex_lock(&table->state_mutex);
-        if(table->end_of_simulation)
-        {
-            pthread_mutex_unlock(&table->state_mutex);
-            break;
-        }
-        pthread_mutex_unlock(&table->state_mutex);
-
-        /*
-            add a funtion describe the status of time last_meal.
-        */
         i = 0;
-        long time_last_meal;
         while(i < table->nbr_of_philos)
         {
             pthread_mutex_lock(&table->state_mutex);
-            time_last_meal = get_time() - table->philos[i].last_meal;
+            current_time = get_time();
             // printf("Check: %d starved for %ld ms \n", i+1, time_last_meal);
-            if(time_last_meal > table->time_to_die)
+            if((current_time - table->philos[i].last_meal) > table->time_to_die)
             {
-                printf("Check: %d starved for %ld ms \n", i+1, time_last_meal);
+                // printf("Check: %d starved for %ld ms \n", i+1, current_time);
                 table->end_of_simulation = true;
-                pthread_mutex_unlock(&table->state_mutex);
                 philo_status(&table->philos[i], "died");
+                pthread_mutex_unlock(&table->state_mutex);
                 return ; // or break. test it.
-            }
-            
-            if(table->philos_must_eat != -1 && table->philos[i].meal_counter >= table->philos_must_eat)
-            {
-                table->philos[i].fill_full = true;
             }
             pthread_mutex_unlock(&table->state_mutex);
             i++;
-        }
+        }  
+        /*
+            add a funtion describe the status of time last_meal. 
+        */
         if (table->philos_must_eat != -1)
         {
             i = 0;
@@ -62,10 +49,10 @@ void    end_of_died(t_table *table)//Masada herkesi öldür! :D
                 table->end_of_simulation = true;
                 pthread_mutex_unlock(&table->state_mutex);
                 //Add a message!
-                break;
+                return ;
             }
             pthread_mutex_unlock(&table->state_mutex);
         }
-        usleep(1000);
+        usleep(50);
     }
 }
