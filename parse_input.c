@@ -52,7 +52,6 @@ void	parse_input(t_table *table, char *av[])
 		table->philos_must_eat = ft_atoi(av[5]);
 	else
 		table->philos_must_eat = -1;
-	if(table->time_to_die < 1  || table->time_to_eat < 1 || table->time_to_sleep < 1)
-		exit_function("Arguments must be possitive");
-	// pthread_mutex_init(&table->log_mutex, NULL);
+	if( table->nbr_of_philos < 1 || table->time_to_die < 1  || table->time_to_eat  < 1 || table->time_to_sleep  < 1 || (table->philos_must_eat != -1 && table->philos_must_eat < 1))
+		exit_function("Arguments must be possitive and non zero");
 }

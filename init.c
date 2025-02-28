@@ -14,14 +14,7 @@
 
 void check_sleep(long durasion_ms)
 {
-    long start;
-
-    start = get_time();
-    while((get_time() - start) < durasion_ms)
-    {
-        usleep(100);
-    }
-
+    usleep(durasion_ms * 1000);
 }
 
 long    get_time(void) // this function is like that
@@ -34,12 +27,13 @@ long    get_time(void) // this function is like that
 
 void philo_status(t_philo *philo, const char *status) // Control it Think, sleep and eat 
 {
+    // long timestamp;
     pthread_mutex_lock(&philo->table->log_mutex);
-    if(!philo->table->end_of_simulation || !strcmp(status, "died"))// check strcmp command
+    if(!philo->table->end_of_simulation || strcmp(status, "died") == 0)
+    {
+        // timestamp = get_time() - philo->table->start_time;
         printf("%ld %d %s\n", get_time() - philo->table->start_time, philo->philo_id, status);
-    // Check the links for this connection! 
-    // Add log_mutex! or create a function for mutex?
-    //First i will start to add log_mutex
+    }
     pthread_mutex_unlock(&philo->table->log_mutex);
 }
 
@@ -47,9 +41,6 @@ void philo_status(t_philo *philo, const char *status) // Control it Think, sleep
 void    *philosophers_routine(void *arg)
 {
     t_philo *philo = (t_philo *)arg;
-    // t_table *table = philo->thread_id;
-    // int left_fork = philo->philo_id - 1;
-    // int right_fork = philo->philo_id % table->nbr_of_philos;
     /*
         For 1 philosopher!!
     */
@@ -61,7 +52,7 @@ void    *philosophers_routine(void *arg)
         philo_status(philo, "died");
         return NULL;
     }
-
+    
     while(1)
     {
         //philo_status(t_philo *philo, const char *status);
@@ -73,7 +64,11 @@ void    *philosophers_routine(void *arg)
         }
         pthread_mutex_unlock(&philo->table->state_mutex);
 
-        
+        // if(philo->table->nbr_of_philos <= 5)
+        // {
+        //     usleep((philo->philo_id % 3) * 100);
+        // }
+       
         if (philo->philo_id % 2 == 0) // first philosophers start to eating with left fork
         {
             pthread_mutex_lock(&philo->right_fork->fork);
@@ -108,7 +103,7 @@ void    *philosophers_routine(void *arg)
         pthread_mutex_unlock(&philo->table->state_mutex);
 
         philo_status(philo, "is eating");
-        usleep(philo->table->time_to_eat * 1000);
+        usleep(philo->table->time_to_eat);
 
         pthread_mutex_unlock(&philo->right_fork->fork);
         pthread_mutex_unlock(&philo->left_fork->fork);
@@ -117,23 +112,21 @@ void    *philosophers_routine(void *arg)
             Time to sleep is start in here!!
         */
         philo_status(philo, "is sleeping");
-        usleep(philo->table->time_to_sleep * 1000);
+        usleep(philo->table->time_to_sleep);
         
 
-        pthread_mutex_lock(&philo->table->state_mutex);
-        if(philo->table->end_of_simulation)
-        {
-            pthread_mutex_unlock(&philo->table->state_mutex);
-            return NULL;
-        }
-        pthread_mutex_unlock(&philo->table->state_mutex);
+        // pthread_mutex_lock(&philo->table->state_mutex);
+        // if(philo->table->end_of_simulation)
+        // {
+        //     pthread_mutex_unlock(&philo->table->state_mutex);
+        //     return NULL;
+        // }
+        // pthread_mutex_unlock(&philo->table->state_mutex);
 
         /*
             Time to think!!
         */
         philo_status(philo, "is thinking");
-        
-        usleep(1000);
     }
     return NULL;
 }
@@ -143,9 +136,7 @@ void    data_init(t_table *table)
     table->end_of_simulation = false;
     table->philos = memory_loop(sizeof(t_philo) * table->nbr_of_philos); // I'm gonna get an error for this part!
     table->forks = memory_loop(sizeof(t_fork) * table->nbr_of_philos);
-    pthread_mutex_init(&table->log_mutex, NULL);
-    pthread_mutex_init(&table->state_mutex, NULL);
-
+    
     int i = 0;
     while(i < table->nbr_of_philos)
     {
@@ -160,9 +151,11 @@ void    data_init(t_table *table)
         table->philos[i].philo_id = i + 1;
         table->philos[i].meal_counter = 0;
         table->philos[i].fill_full = false;
-       table->philos[i].left_fork = &table->forks[i];
-       table-> philos[i].right_fork = &table->forks[(i + 1) % table->nbr_of_philos];
-       table->philos[i].table = table;
-       i++; 
+        table->philos[i].left_fork = &table->forks[i];
+        table-> philos[i].right_fork = &table->forks[(i + 1) % table->nbr_of_philos];
+        table->philos[i].table = table;
+        i++; 
     }
+    pthread_mutex_init(&table->state_mutex, NULL);
+    pthread_mutex_init(&table->log_mutex, NULL);
 }
