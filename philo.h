@@ -95,5 +95,6 @@ void    data_init(t_table *table);
 //clean it!
 void    clean(t_table *table);
 void check_sleep(long durasion_ms);
+int take_break(long int time);
 
 #endif

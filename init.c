@@ -21,17 +21,22 @@ long    get_time(void) // this function is like that
 {
     struct timeval tv;// keep time as seconds and microseconds.
     gettimeofday(&tv, NULL); // current time saved to tv
-    return (tv.tv_sec * 1000 + tv.tv_usec / 1000); // 1 second = 1000 millisaniye
+    return ((long long)tv.tv_sec * 1e3 + tv.tv_usec / 1e3); // 1 second = 1000 millisaniye
     // 1 micro second = 0.000001 second 1e6
 }
 
 void philo_status(t_philo *philo, const char *status) // Control it Think, sleep and eat 
 {
-    // long timestamp;
+
     pthread_mutex_lock(&philo->table->log_mutex);
-    if(!philo->table->end_of_simulation || strcmp(status, "died") == 0)
+
+    // pthread_mutex_lock(&philo->table->state_mutex);
+    bool out_print = !philo->table->end_of_simulation || (strcmp(status, "died") == 0);
+    // pthread_mutex_unlock(&philo->table->state_mutex);
+
+    if(out_print)
     {
-        // timestamp = get_time() - philo->table->start_time;
+        // long timestamp = get_time() - philo->table->start_time;
         printf("%ld %d %s\n", get_time() - philo->table->start_time, philo->philo_id, status);
     }
     pthread_mutex_unlock(&philo->table->log_mutex);
@@ -52,23 +57,14 @@ void    *philosophers_routine(void *arg)
         philo_status(philo, "died");
         return NULL;
     }
+
+    // 200ms gecikme eklersek;
+    if(philo->philo_id % 2)
+        usleep(150);
     
     while(1)
     {
-        //philo_status(t_philo *philo, const char *status);
-        pthread_mutex_lock(&philo->table->state_mutex);
-        if(philo->table->end_of_simulation)
-        {
-            pthread_mutex_unlock(&philo->table->state_mutex);
-            return NULL;
-        }
-        pthread_mutex_unlock(&philo->table->state_mutex);
 
-        // if(philo->table->nbr_of_philos <= 5)
-        // {
-        //     usleep((philo->philo_id % 3) * 100);
-        // }
-       
         if (philo->philo_id % 2 == 0) // first philosophers start to eating with left fork
         {
             pthread_mutex_lock(&philo->right_fork->fork);
@@ -96,38 +92,48 @@ void    *philosophers_routine(void *arg)
             return NULL;
         }
         // add the last meal with given time!
+        
         philo->last_meal = get_time();
+        // pthread_mutex_unlock(&philo->table->state_mutex);
+        // pthread_mutex_lock(&philo->table->state_mutex);
          philo->meal_counter++;
         if(philo->table->philos_must_eat != -1 && philo->meal_counter >= philo->table->philos_must_eat)
             philo->fill_full = true;
         pthread_mutex_unlock(&philo->table->state_mutex);
 
         philo_status(philo, "is eating");
-        usleep(philo->table->time_to_eat);
+        usleep(philo->table->time_to_eat * 1000);
+        printf(GRN"%ld\n"RST, get_time());
+
 
         pthread_mutex_unlock(&philo->right_fork->fork);
         pthread_mutex_unlock(&philo->left_fork->fork);
         
+
         /*
             Time to sleep is start in here!!
         */
         philo_status(philo, "is sleeping");
-        usleep(philo->table->time_to_sleep);
-        
+        usleep(philo->table->time_to_sleep * 1000);
+        printf(GRN"%ld\n"RST, get_time());
 
-        // pthread_mutex_lock(&philo->table->state_mutex);
-        // if(philo->table->end_of_simulation)
-        // {
-        //     pthread_mutex_unlock(&philo->table->state_mutex);
-        //     return NULL;
-        // }
-        // pthread_mutex_unlock(&philo->table->state_mutex);
+        pthread_mutex_lock(&philo->table->state_mutex);
+        if(philo->table->end_of_simulation)
+        {
+            pthread_mutex_unlock(&philo->table->state_mutex);
+            return NULL;
+        }
+        pthread_mutex_unlock(&philo->table->state_mutex);
 
         /*
             Time to think!!
         */
         philo_status(philo, "is thinking");
+        long think_time = ((philo->table->time_to_die -(philo->table->time_to_eat + philo->table->time_to_sleep)) * 1e3);
+        printf(GRN"%ld\n"RST, get_time());
+        usleep(150000);
     }
+
     return NULL;
 }
 

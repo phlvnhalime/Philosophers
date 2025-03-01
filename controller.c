@@ -64,7 +64,7 @@ void    end_of_died(t_table *table)//Masada herkesi öldür! :D
             }
             pthread_mutex_unlock(&table->state_mutex);
         }
-        usleep(1000);
+        usleep(10);
     }
 }
   

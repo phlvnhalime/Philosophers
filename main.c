@@ -41,7 +41,6 @@ int main(int ac, char *av[])
     */
     if(ac != 5 && ac != 6)
         exit_function("Wrong arguments: <number_of_philosophers> <time_to_die> <time_to_eat> <time_to_sleep> <[number_of_times_each_philosophers_must_eat]>");
-    srand(time(NULL));
     t_table table;
     //TODO List:
     //1. Parse_input (as a valid character)
@@ -67,6 +66,13 @@ int main(int ac, char *av[])
         return 0;
         // Check the clean function!
     }
+
+    // int i = 0;
+    // while(1< table.nbr_of_philos)
+    // {
+    //     table.philos[i].last_meal = table.start_time;
+    //     i++;
+    // }
     
     int i = 0;
     while(i < table.nbr_of_philos)
